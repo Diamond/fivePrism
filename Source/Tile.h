@@ -10,6 +10,7 @@
 
 @interface Tile : CCNode
 
+@property (nonatomic,assign) int value;
 -(void)build;
 
 @end

@@ -50,22 +50,22 @@ static const int GRID_HEIGHT = 440;
 
 -(void)swipeLeft
 {
-    CCLOG(@"left");
+    [self moveGrids:ccp(-1.0f, 0.0f)];
 }
 
 -(void)swipeRight
 {
-    CCLOG(@"right");
+    [self moveGrids:ccp(+1.0f, 0.0f)];
 }
 
 -(void)swipeDown
 {
-    CCLOG(@"down");
+    [self moveGrids:ccp(0.0f, +1.0f)];
 }
 
 -(void)swipeUp
 {
-    CCLOG(@"up");
+    [self moveGrids:ccp(0.0f, -1.0f)];
 }
 
 -(void)initGrid
@@ -89,6 +89,60 @@ static const int GRID_HEIGHT = 440;
             [self addChild:newTile];
         }
     }
+}
+
+-(void)moveGrids:(CGPoint)direction
+{
+    for (int y = 0; y < _rows; y++) {
+        for (int x = 0; x < _columns; x++) {
+            CGPoint moveTo = [self findSpotToMoveTo:x fromY:y moveX:(int)direction.x moveY:(int)direction.y];
+            Tile *origin = (Tile*)_gridArray[y][x];
+            [self moveTile:origin toX:(int)moveTo.x toY:(int)moveTo.y];
+        }
+    }
+}
+
+-(void)moveTile:(Tile*)tile toX:(int)x toY:(int)y
+{
+    CGPoint destination = ccp(x*TILE_SIZE, y*TILE_SIZE);
+    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:destination];
+    [tile runAction:moveTo];
+}
+
+-(CGPoint)findSpotToMoveTo:(int)fromX fromY:(int)fromY moveX:(int)moveX moveY:(int)moveY
+{
+    int moveByX = 0;
+    int moveByY = 0;
+    
+    while ([self isValidForMove:fromX fromY:fromY toX:fromX+moveByX toY:fromY+moveByY]) {
+        moveByX += moveX;
+        moveByY += moveY;
+    }
+    
+    return ccp(fromX+moveByX, fromY+moveByY);
+}
+
+-(BOOL)isValidForMove:(int)fromX fromY:(int)fromY toX:(int)toX toY:(int)toY
+{
+    if (![self isPointValid:fromX y:fromY] || ![self isPointValid:toX y:toY]) {
+        return FALSE;
+    }
+    
+    //CCLOG(@"fromX: %d fromY: %d toX: %d toY: %d", fromX, fromY, toX, toY);
+    
+    Tile *oldTile = (Tile*)_gridArray[fromY][fromX];
+    Tile *newTile = (Tile*)_gridArray[toY][toX];
+    
+    if (oldTile.value == newTile.value) {
+        return TRUE;
+    }
+    
+    return FALSE;
+}
+
+-(BOOL)isPointValid:(int)x y:(int)y
+{
+    return x >= 0 && x < _columns && y >= 0 && y < _rows;
 }
 
 @end

@@ -11,17 +11,16 @@
 static const int COLORS = 5;
 
 @implementation Tile {
-    int         _value;
     CCNodeColor *_colorNode;
 }
 
 -(void)build {
-    _value = (arc4random() % COLORS);
+    self.value = (arc4random() % COLORS);
     [self setupColor];
 }
 
 -(void)setupColor {
-    switch (_value) {
+    switch (self.value) {
         case 0:
             // Blue
             _colorNode.color = [CCColor colorWithRed:0.0f green:[self color255:84.0f] blue:1.0f];

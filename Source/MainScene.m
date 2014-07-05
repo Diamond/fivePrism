@@ -9,7 +9,9 @@
 #import "MainScene.h"
 #import "Grid.h"
 
-@implementation MainScene
+@implementation MainScene {
+    CCLabelTTF *_scoreLabel;
+}
 
 -(void)didLoadFromCCB
 {
