@@ -36,7 +36,7 @@ static const int COLORS = 5;
             break;
         case 3:
             // Red
-            _colorNode.color = [CCColor colorWithRed:1.0f green:0.0f blue:[self color255:10]];
+            _colorNode.color = [CCColor colorWithRed:1.0f green:0.0f blue:0.0f];
             break;
         case 4:
         default:

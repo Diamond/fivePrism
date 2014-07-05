@@ -7,7 +7,13 @@
 //
 
 #import "MainScene.h"
+#import "Grid.h"
 
 @implementation MainScene
+
+-(void)didLoadFromCCB
+{
+    //[CCBReader load:@"Grid"];
+}
 
 @end
