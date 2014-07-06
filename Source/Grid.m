@@ -28,11 +28,14 @@ static const int GRID_HEIGHT = 440;
     _columns = GRID_WIDTH  / TILE_SIZE;
     _offsetX = 0;
     _offsetY = 50;
-    
+
     _nullTile = [NSNull null];
-    
+
     [self initGrid];
     [self setupGrid];
+    
+    self.anchorPoint = ccp(0,1);
+    self.position = ccp(0,120);
     
     UISwipeGestureRecognizer * swipeLeft= [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(swipeLeft)];
     swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
@@ -56,23 +59,29 @@ static const int GRID_HEIGHT = 440;
     CCLOG(@"swipe left");
     [self moveLeft];
     [self setupGrid];
+    [self debugGrid];
 }
 
 -(void)swipeRight
 {
     CCLOG(@"swipe right");
     [self moveRight];
-    //[self setupGrid];
+    [self setupGrid];
+    [self debugGrid];
 }
 
 -(void)swipeDown
 {
     CCLOG(@"swipe down");
+    [self moveUp];
+    [self debugGrid];
 }
 
 -(void)swipeUp
 {
     CCLOG(@"swipe up");
+    [self moveDown];
+    [self debugGrid];
 }
 
 -(void)moveLeft
@@ -145,6 +154,78 @@ static const int GRID_HEIGHT = 440;
     }
 }
 
+-(void)moveUp
+{
+    for (int y = 1; y < _rows; y++) {
+        for (int x = 0; x < _columns; x++) {
+            if (_gridArray[y][x] == _nullTile) {
+                continue;
+            }
+            Tile *origin = (Tile*)_gridArray[y][x];
+            if (_gridArray[y-1][x] != _nullTile) {
+                Tile *compare = (Tile*)_gridArray[y-1][x];
+                if (origin.value != compare.value) continue;
+            }
+            int bestY = y;
+            for (int deltaY = y; deltaY < 0; deltaY--) {
+                if (_gridArray[deltaY][x] == _nullTile) {
+                    bestY = deltaY;
+                    continue;
+                }
+                Tile *compare = (Tile*)_gridArray[deltaY][x];
+                if (origin.value == compare.value) {
+                    bestY = deltaY;
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            int originalX    = origin.position.x;
+            int destinationY = (bestY * TILE_SIZE) + _offsetY;
+            CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp(originalX, destinationY)];
+            [origin runAction:moveTo];
+            _gridArray[bestY][x]    = origin;
+            _gridArray[y][x]        = _nullTile;
+        }
+    }
+}
+
+-(void)moveDown
+{
+    for (int y = _rows-2; y >= 0; y--) {
+        for (int x = 0; x < _columns; x++) {
+            if (_gridArray[y][x] == _nullTile) {
+                continue;
+            }
+            Tile *origin = (Tile*)_gridArray[y][x];
+            if (_gridArray[y+1][x] != _nullTile) {
+                Tile *compare = (Tile*)_gridArray[y+1][x];
+                if (origin.value != compare.value) continue;
+            }
+            int bestY = y;
+            for (int deltaY = y; deltaY < _rows; deltaY++) {
+                if (_gridArray[deltaY][x] == _nullTile) {
+                    bestY = deltaY;
+                    continue;
+                }
+                Tile *compare = (Tile*)_gridArray[deltaY][x];
+                if (origin.value == compare.value) {
+                    bestY = deltaY;
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            int originalX    = origin.position.x;
+            int destinationY = (bestY * TILE_SIZE) + _offsetY;
+            CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp(originalX, destinationY)];
+            [origin runAction:moveTo];
+            _gridArray[bestY][x]    = origin;
+            _gridArray[y][x]        = _nullTile;
+        }
+    }
+}
+
 -(void)initGrid
 {
     _gridArray = [NSMutableArray array];
@@ -166,10 +247,26 @@ static const int GRID_HEIGHT = 440;
             [newTile build];
             int positionX = _offsetX + (x * TILE_SIZE);
             int positionY = _offsetY + (y * TILE_SIZE);
-            newTile.position = ccp(positionX, positionY);
+            newTile.position = ccp(positionX, 0);
             _gridArray[y][x] = newTile;
             [self addChild:newTile];
+            CCActionMoveTo *fallTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp(positionX, positionY)];
+            [newTile runAction:fallTo];
         }
+    }
+}
+
+-(void)debugGrid
+{
+    NSString *data = @"";
+    for (int y = 0; y < _rows; y++) {
+        for (int x = 0; x < _columns; x++) {
+            if (_gridArray[y][x] != _nullTile) {
+                [data stringByAppendingFormat:@"%d",((Tile*)_gridArray[y][x]).value];
+            }
+        }
+        CCLOG(@"%@",data);
+        data = @"";
     }
 }
 
