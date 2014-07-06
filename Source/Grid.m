@@ -15,6 +15,7 @@
     int            _columns;
     int            _offsetX;
     int            _offsetY;
+    NSNull         *_nullTile;
 }
 
 static const int TILE_SIZE   = 40;
@@ -27,7 +28,9 @@ static const int GRID_HEIGHT = 440;
     _columns = GRID_WIDTH  / TILE_SIZE;
     _offsetX = 0;
     _offsetY = 50;
-
+    
+    _nullTile = [NSNull null];
+    
     [self initGrid];
     [self setupGrid];
     
@@ -65,25 +68,40 @@ static const int GRID_HEIGHT = 440;
 -(void)swipeLeft
 {
     CCLOG(@"swipe left");
-    [self moveGrids:ccp(-1.0f, 0.0f)];
+    [self moveLeft];
 }
 
 -(void)swipeRight
 {
     CCLOG(@"swipe right");
-    [self moveGrids:ccp(+1.0f, 0.0f)];
 }
 
 -(void)swipeDown
 {
     CCLOG(@"swipe down");
-    [self moveGrids:ccp(0.0f, +1.0f)];
 }
 
 -(void)swipeUp
 {
     CCLOG(@"swipe up");
-    [self moveGrids:ccp(0.0f, -1.0f)];
+}
+
+-(void)moveLeft
+{
+    for (int x = 1; x < _columns; x++) {
+        for (int y = 0; y < _rows; y++) {
+            Tile *origin = (Tile*)_gridArray[y][x];
+            for (int deltaX = x; deltaX >= 0; deltaX--) {
+                Tile *compare = (Tile*)_gridArray[y][deltaX];
+                if (origin.value != compare.value) {
+                    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:ccp((deltaX+1) * TILE_SIZE,y)];
+                    [origin runAction:moveTo];
+                    _gridArray[y][deltaX+1] = compare;
+                    _gridArray[y][x]        = _nullTile;
+                }
+            }
+        }
+    }
 }
 
 -(void)initGrid
