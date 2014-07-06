@@ -34,20 +34,6 @@ static const int GRID_HEIGHT = 440;
     [self initGrid];
     [self setupGrid];
     
-//    int counter = 0;
-//    NSMutableArray *test = [NSMutableArray array];
-//    for (int i = 0; i < 4; i++) {
-//        test[i] = [NSMutableArray array];
-//        for (int j = 0; j < 5; j++) {
-//            test[i][j] = [NSString stringWithFormat:@"%d",counter++];
-//        }
-//    }
-//    for (int i = 0; i < 4; i++) {
-//        for (int j = 0; j < 5; j++) {
-//            CCLOG(@"i:%d j:%d => %@",i,j,test[i][j]);
-//        }
-//    }
-    
     UISwipeGestureRecognizer * swipeLeft= [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(swipeLeft)];
     swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
     [[[CCDirector sharedDirector] view] addGestureRecognizer:swipeLeft];
@@ -90,16 +76,33 @@ static const int GRID_HEIGHT = 440;
 {
     for (int x = 1; x < _columns; x++) {
         for (int y = 0; y < _rows; y++) {
+            if (_gridArray[y][x] == _nullTile) {
+                continue;
+            }
             Tile *origin = (Tile*)_gridArray[y][x];
+            if (_gridArray[y][x-1] != _nullTile) {
+                Tile *compare = (Tile*)_gridArray[y][x-1];
+                if (origin.value != compare.value) continue;
+            }
+            int bestX = x;
             for (int deltaX = x; deltaX >= 0; deltaX--) {
+                if (_gridArray[y][deltaX] == _nullTile) {
+                    bestX = deltaX;
+                    continue;
+                }
                 Tile *compare = (Tile*)_gridArray[y][deltaX];
-                if (origin.value != compare.value) {
-                    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:ccp((deltaX+1) * TILE_SIZE,y)];
-                    [origin runAction:moveTo];
-                    _gridArray[y][deltaX+1] = compare;
-                    _gridArray[y][x]        = _nullTile;
+                if (origin.value == compare.value) {
+                    bestX = deltaX;
+                    continue;
+                } else {
+                    break;
                 }
             }
+            int originalY = origin.position.y;
+            CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:1.0f position:ccp((bestX) * TILE_SIZE, originalY)];
+            [origin runAction:moveTo];
+            _gridArray[y][bestX]    = origin;
+            _gridArray[y][x]        = _nullTile;
         }
     }
 }
@@ -125,60 +128,6 @@ static const int GRID_HEIGHT = 440;
             [self addChild:newTile];
         }
     }
-}
-
--(void)moveGrids:(CGPoint)direction
-{
-    for (int y = 0; y < _rows; y++) {
-        for (int x = 0; x < _columns; x++) {
-            CGPoint moveTo = [self findSpotToMoveTo:x fromY:y moveX:(int)direction.x moveY:(int)direction.y];
-            Tile *origin = (Tile*)_gridArray[y][x];
-            [self moveTile:origin toX:(int)moveTo.x toY:(int)moveTo.y];
-        }
-    }
-}
-
--(void)moveTile:(Tile*)tile toX:(int)x toY:(int)y
-{
-    CGPoint destination = ccp(x*TILE_SIZE, y*TILE_SIZE);
-    CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.2f position:destination];
-    [tile runAction:moveTo];
-}
-
--(CGPoint)findSpotToMoveTo:(int)fromX fromY:(int)fromY moveX:(int)moveX moveY:(int)moveY
-{
-    int moveByX = 0;
-    int moveByY = 0;
-    
-    while ([self isValidForMove:fromX fromY:fromY toX:fromX+moveByX toY:fromY+moveByY]) {
-        moveByX += moveX;
-        moveByY += moveY;
-    }
-    
-    return ccp(fromX+moveByX, fromY+moveByY);
-}
-
--(BOOL)isValidForMove:(int)fromX fromY:(int)fromY toX:(int)toX toY:(int)toY
-{
-    if (![self isPointValid:fromX y:fromY] || ![self isPointValid:toX y:toY]) {
-        return FALSE;
-    }
-    
-    //CCLOG(@"fromX: %d fromY: %d toX: %d toY: %d", fromX, fromY, toX, toY);
-    
-    Tile *oldTile = (Tile*)_gridArray[fromY][fromX];
-    Tile *newTile = (Tile*)_gridArray[toY][toX];
-    
-    if (oldTile.value == newTile.value) {
-        return TRUE;
-    }
-    
-    return FALSE;
-}
-
--(BOOL)isPointValid:(int)x y:(int)y
-{
-    return x >= 0 && x < _columns && y >= 0 && y < _rows;
 }
 
 @end
