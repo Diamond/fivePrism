@@ -641,7 +641,7 @@
 						<array>
 							<real>0.5</real>
 							<real>0.5</real>
-							<integer>0</integer>
+							<integer>1</integer>
 							<integer>2</integer>
 							<integer>2</integer>
 						</array>
@@ -777,6 +777,8 @@
 				</array>
 			</dict>
 		</array>
+		<key>selected</key>
+		<true/>
 	</dict>
 	<key>notes</key>
 	<array/>

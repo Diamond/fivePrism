@@ -31,6 +31,20 @@ static const int GRID_HEIGHT = 440;
     [self initGrid];
     [self setupGrid];
     
+//    int counter = 0;
+//    NSMutableArray *test = [NSMutableArray array];
+//    for (int i = 0; i < 4; i++) {
+//        test[i] = [NSMutableArray array];
+//        for (int j = 0; j < 5; j++) {
+//            test[i][j] = [NSString stringWithFormat:@"%d",counter++];
+//        }
+//    }
+//    for (int i = 0; i < 4; i++) {
+//        for (int j = 0; j < 5; j++) {
+//            CCLOG(@"i:%d j:%d => %@",i,j,test[i][j]);
+//        }
+//    }
+    
     UISwipeGestureRecognizer * swipeLeft= [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(swipeLeft)];
     swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
     [[[CCDirector sharedDirector] view] addGestureRecognizer:swipeLeft];
@@ -50,21 +64,25 @@ static const int GRID_HEIGHT = 440;
 
 -(void)swipeLeft
 {
+    CCLOG(@"swipe left");
     [self moveGrids:ccp(-1.0f, 0.0f)];
 }
 
 -(void)swipeRight
 {
+    CCLOG(@"swipe right");
     [self moveGrids:ccp(+1.0f, 0.0f)];
 }
 
 -(void)swipeDown
 {
+    CCLOG(@"swipe down");
     [self moveGrids:ccp(0.0f, +1.0f)];
 }
 
 -(void)swipeUp
 {
+    CCLOG(@"swipe up");
     [self moveGrids:ccp(0.0f, -1.0f)];
 }
 
