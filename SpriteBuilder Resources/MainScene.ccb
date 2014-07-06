@@ -81,8 +81,8 @@
 								<key>value</key>
 								<array>
 									<real>0.0</real>
-									<real>568</real>
-									<integer>1</integer>
+									<real>0.0</real>
+									<integer>0</integer>
 									<integer>0</integer>
 									<integer>0</integer>
 								</array>
@@ -109,6 +109,8 @@
 								<string>Grid.ccb</string>
 							</dict>
 						</array>
+						<key>selected</key>
+						<true/>
 					</dict>
 					<dict>
 						<key>UUID</key>
@@ -777,8 +779,6 @@
 				</array>
 			</dict>
 		</array>
-		<key>selected</key>
-		<true/>
 	</dict>
 	<key>notes</key>
 	<array/>

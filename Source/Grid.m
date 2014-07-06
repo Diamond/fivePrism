@@ -21,6 +21,7 @@
 static const int TILE_SIZE   = 40;
 static const int GRID_WIDTH  = 320;
 static const int GRID_HEIGHT = 440;
+static const int SCREEN_TOP  = 410;
 
 -(void)didLoadFromCCB
 {
@@ -33,9 +34,6 @@ static const int GRID_HEIGHT = 440;
 
     [self initGrid];
     [self setupGrid];
-    
-    self.anchorPoint = ccp(0,1);
-    self.position = ccp(0,120);
     
     UISwipeGestureRecognizer * swipeLeft= [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(swipeLeft)];
     swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
@@ -58,30 +56,28 @@ static const int GRID_HEIGHT = 440;
 {
     CCLOG(@"swipe left");
     [self moveLeft];
-    [self setupGrid];
-    [self debugGrid];
+    //[self setupGrid];
 }
 
 -(void)swipeRight
 {
     CCLOG(@"swipe right");
     [self moveRight];
-    [self setupGrid];
-    [self debugGrid];
+    //[self setupGrid];
 }
 
 -(void)swipeDown
 {
     CCLOG(@"swipe down");
-    [self moveUp];
-    [self debugGrid];
+    [self moveDown];
+    //[self debugGrid];
 }
 
 -(void)swipeUp
 {
     CCLOG(@"swipe up");
-    [self moveDown];
-    [self debugGrid];
+    [self moveUp];
+    //[self debugGrid];
 }
 
 -(void)moveLeft
@@ -167,7 +163,7 @@ static const int GRID_HEIGHT = 440;
                 if (origin.value != compare.value) continue;
             }
             int bestY = y;
-            for (int deltaY = y; deltaY < 0; deltaY--) {
+            for (int deltaY = y; deltaY > 0; deltaY--) {
                 if (_gridArray[deltaY][x] == _nullTile) {
                     bestY = deltaY;
                     continue;
@@ -181,7 +177,7 @@ static const int GRID_HEIGHT = 440;
                 }
             }
             int originalX    = origin.position.x;
-            int destinationY = (bestY * TILE_SIZE) + _offsetY;
+            int destinationY = SCREEN_TOP - (bestY * TILE_SIZE);
             CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp(originalX, destinationY)];
             [origin runAction:moveTo];
             _gridArray[bestY][x]    = origin;
@@ -217,7 +213,7 @@ static const int GRID_HEIGHT = 440;
                 }
             }
             int originalX    = origin.position.x;
-            int destinationY = (bestY * TILE_SIZE) + _offsetY;
+            int destinationY = SCREEN_TOP - (bestY * TILE_SIZE);
             CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp(originalX, destinationY)];
             [origin runAction:moveTo];
             _gridArray[bestY][x]    = origin;
@@ -246,14 +242,15 @@ static const int GRID_HEIGHT = 440;
             Tile *newTile = (Tile*)[CCBReader load:@"Tile"];
             [newTile build];
             int positionX = _offsetX + (x * TILE_SIZE);
-            int positionY = _offsetY + (y * TILE_SIZE);
-            newTile.position = ccp(positionX, 0);
+            int positionY = (SCREEN_TOP - (y * TILE_SIZE));
+            newTile.position = ccp(positionX, SCREEN_TOP);
             _gridArray[y][x] = newTile;
             [self addChild:newTile];
             CCActionMoveTo *fallTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp(positionX, positionY)];
             [newTile runAction:fallTo];
         }
     }
+    CCLOG(@"%d",((Tile*)_gridArray[0][0]).value);
 }
 
 -(void)debugGrid
