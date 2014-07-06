@@ -11,11 +11,18 @@
 
 @implementation MainScene {
     CCLabelTTF *_scoreLabel;
+    Grid       *_grid;
 }
 
 -(void)didLoadFromCCB
 {
     //[CCBReader load:@"Grid"];
+}
+
+
+-(void)redraw
+{
+    [_grid redraw];
 }
 
 @end

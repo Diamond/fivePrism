@@ -93,22 +93,29 @@ static const int SCREEN_TOP  = 410;
                 if (origin.value != compare.value) continue;
             }
             int bestX = x;
+            CCLOG(@"Moving %d",origin.value);
             for (int deltaX = x; deltaX >= 0; deltaX--) {
                 if (_gridArray[y][deltaX] == _nullTile) {
+                    CCLOG(@"Null tile: %d,%d",deltaX,y);
                     bestX = deltaX;
                     continue;
                 }
                 Tile *compare = (Tile*)_gridArray[y][deltaX];
                 if (origin.value == compare.value) {
+                    CCLOG(@"Same tile: %d,%d",deltaX,y);
                     bestX = deltaX;
                     continue;
                 } else {
+                    CCLOG(@"Different tile: %d,%d",deltaX,y);
                     break;
                 }
             }
             int originalY = origin.position.y;
             CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp((bestX) * TILE_SIZE, originalY)];
             [origin runAction:moveTo];
+            if (_gridArray[y][bestX] != _nullTile && bestX != x) {
+                ((Tile*)_gridArray[y][bestX]).visible = FALSE;
+            }
             _gridArray[y][bestX]    = origin;
             _gridArray[y][x]        = _nullTile;
         }
@@ -144,6 +151,9 @@ static const int SCREEN_TOP  = 410;
             int originalY = origin.position.y;
             CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp((bestX) * TILE_SIZE, originalY)];
             [origin runAction:moveTo];
+            if (_gridArray[y][bestX] != _nullTile && bestX != x) {
+                ((Tile*)_gridArray[y][bestX]).visible = FALSE;
+            }
             _gridArray[y][bestX]    = origin;
             _gridArray[y][x]        = _nullTile;
         }
@@ -180,6 +190,9 @@ static const int SCREEN_TOP  = 410;
             int destinationY = SCREEN_TOP - (bestY * TILE_SIZE);
             CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp(originalX, destinationY)];
             [origin runAction:moveTo];
+            if (_gridArray[bestY][x] != _nullTile && bestY != y) {
+                ((Tile*)_gridArray[bestY][x]).visible = FALSE;
+            }
             _gridArray[bestY][x]    = origin;
             _gridArray[y][x]        = _nullTile;
         }
@@ -216,6 +229,9 @@ static const int SCREEN_TOP  = 410;
             int destinationY = SCREEN_TOP - (bestY * TILE_SIZE);
             CCActionMoveTo *moveTo = [CCActionMoveTo actionWithDuration:0.5f position:ccp(originalX, destinationY)];
             [origin runAction:moveTo];
+            if (_gridArray[bestY][x] != _nullTile && bestY != y) {
+                ((Tile*)_gridArray[bestY][x]).visible = FALSE;
+            }
             _gridArray[bestY][x]    = origin;
             _gridArray[y][x]        = _nullTile;
         }
@@ -264,6 +280,20 @@ static const int SCREEN_TOP  = 410;
         }
         CCLOG(@"%@",data);
         data = @"";
+    }
+}
+
+-(void)redraw
+{
+    for (int y = 0; y < _rows; y++) {
+        for (int x = 0; x < _columns; x++) {
+            if (_gridArray[y][x] == _nullTile) continue;
+            
+            Tile *tile = (Tile*)_gridArray[y][x];
+            int positionX = _offsetX + (x * TILE_SIZE);
+            int positionY = (SCREEN_TOP - (y * TILE_SIZE));
+            tile.position = ccp(positionX, positionY);
+        }
     }
 }
 

@@ -10,4 +10,6 @@
 
 @interface Grid : CCNode
 
+-(void)redraw;
+
 @end
